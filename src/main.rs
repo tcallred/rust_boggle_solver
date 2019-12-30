@@ -1,4 +1,8 @@
-const MAX_WORD_LEN: usize = 3;
+use std::collections::HashSet;
+use std::fs;
+
+const MAX_WORD_LEN: usize = 12;
+
 
 #[derive(Clone, Debug, Copy)]
 struct Coordinate {
@@ -8,6 +12,7 @@ struct Coordinate {
 
 
 impl Coordinate {
+    // Returns a new coordinate if the move is valid. None otherwise.
     fn move_c(&self, a: i64, b: i64, h: i64, w: i64) -> Option<Coordinate> {
         let h_range = 0..h;
         let w_range = 0..w;
@@ -27,27 +32,28 @@ impl PartialEq for Coordinate {
 }
 
 
-fn boggle_solve(grid: &Vec<Vec<char>>) {
-
+fn boggle_solve(grid: &Vec<Vec<char>>, dict: &HashSet<String>) {
     for (i, row) in grid.iter().enumerate() {
         for (j, ch) in row.iter().enumerate() {
-            boggle_solve_help(grid, ch.to_string(), Coordinate{row: i as i64, col: j as i64}, vec![Coordinate{row: i as i64, col: j as i64}])
+            boggle_solve_help(grid, dict, ch.to_string(), Coordinate{row: i as i64, col: j as i64}, vec![Coordinate{row: i as i64, col: j as i64}])
         }
     }
 
 }
 
 
-fn boggle_solve_help(grid: &Vec<Vec<char>>, word: String, c: Coordinate, path: Vec<Coordinate>) {
-
+fn boggle_solve_help(grid: &Vec<Vec<char>>, dict: &HashSet<String>, word: String, c: Coordinate, path: Vec<Coordinate>) {
     // Base case.
     // No more work if the string is long enough
     if word.len() > MAX_WORD_LEN {
         return;
     }
 
-    println!("{}", word);
+    if word.len() > 3 && dict.contains(&word) {
+        println!("{}", word);
+    }
 
+    // For every possible direction the path can take, if it is valid, take it.
     for a in -1..=1 {
         for b in -1..=1 {
            match c.move_c(a, b, grid.len() as i64, grid[0].len() as i64) {
@@ -57,7 +63,7 @@ fn boggle_solve_help(grid: &Vec<Vec<char>>, word: String, c: Coordinate, path: V
                     new_path.push(new_c);
                     let new_word = format!("{}{}", &word, &grid[new_c.row as usize][new_c.col as usize]);
                     
-                    boggle_solve_help(grid, new_word, new_c, new_path);
+                    boggle_solve_help(grid, dict, new_word, new_c, new_path);
                 },
 
                 Some(_) => (),
@@ -70,20 +76,17 @@ fn boggle_solve_help(grid: &Vec<Vec<char>>, word: String, c: Coordinate, path: V
 }
 
 fn main() {
-    println!("Hello, world!");
-}
+    let contents = fs::read_to_string("words_alpha.txt").unwrap();
+    let dict: HashSet<String> = contents.split_whitespace().map(|s| s.to_string()).collect();
 
-#[cfg(test)]
-mod tests{
-    use super::*;
-    #[test]
-    fn three_by_three() {
-        let grid = vec![
-            vec!['A', 'B', 'C'],
-            vec!['D', 'E', 'F'],
-            vec!['G', 'H', 'I']
-        ];
+    let grid: Vec<Vec<char>> = vec![
+        vec!['c', 's', 't', 'e', 't'],
+        vec!['a', 'i', 'r', 'l', 's'],
+        vec!['p', 'd', 'a', 'e', 's'],
+        vec!['u', 'e', 'c', 's', 'e'],
+        vec!['r', 'o', 't', 'r', 'i']
+    ];
 
-        boggle_solve(&grid);
-    }
+    boggle_solve(&grid, &dict)
+
 }
