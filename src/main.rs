@@ -36,6 +36,10 @@ impl Trie {
             self.is_word = true;
         }
     }
+
+    pub fn get(&self, c: &char) -> Option<&Self> {
+        self.children.get(c)
+    }
 }
 
 #[derive(Clone, Debug, Copy)]
@@ -105,9 +109,7 @@ fn boggle_solve_help(
         for b in -1..=1 {
             match c.move_coord(a, b, grid.len() as i64, grid[0].len() as i64) {
                 Some(new_c) if !path.contains(&new_c) => {
-                    if let Some(new_trie) = dict
-                        .children
-                        .get(&grid[new_c.row as usize][new_c.col as usize])
+                    if let Some(new_trie) = dict.get(&grid[new_c.row as usize][new_c.col as usize])
                     {
                         path.push(new_c);
                         boggle_solve_help(grid, new_trie, new_c, path);
