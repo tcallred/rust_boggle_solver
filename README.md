@@ -6,4 +6,4 @@ The solution uses recursion and a Trie to hold the dictionary.
 
 ## TODO
 
-[ ] Convert into command-line tool
+- [ ] Convert into command-line tool
