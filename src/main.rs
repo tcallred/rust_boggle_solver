@@ -71,6 +71,11 @@ fn boggle_solve(grid: &Vec<Vec<char>>, dict: &Trie) {
     for (i, row) in grid.iter().enumerate() {
         for (j, ch) in row.iter().enumerate() {
             if let Some(next_trie) = dict.children.get(ch) {
+                let mut path = Vec::with_capacity(20);
+                path.push(Coordinate {
+                    row: i as i64,
+                    col: j as i64,
+                });
                 boggle_solve_help(
                     grid,
                     next_trie,
@@ -78,17 +83,19 @@ fn boggle_solve(grid: &Vec<Vec<char>>, dict: &Trie) {
                         row: i as i64,
                         col: j as i64,
                     },
-                    vec![Coordinate {
-                        row: i as i64,
-                        col: j as i64,
-                    }],
+                    &mut path,
                 )
             }
         }
     }
 }
 
-fn boggle_solve_help(grid: &Vec<Vec<char>>, dict: &Trie, c: Coordinate, path: Vec<Coordinate>) {
+fn boggle_solve_help(
+    grid: &Vec<Vec<char>>,
+    dict: &Trie,
+    c: Coordinate,
+    path: &mut Vec<Coordinate>,
+) {
     if dict.is_word {
         println!("{}", dict.prefix);
     }
@@ -102,10 +109,9 @@ fn boggle_solve_help(grid: &Vec<Vec<char>>, dict: &Trie, c: Coordinate, path: Ve
                         .children
                         .get(&grid[new_c.row as usize][new_c.col as usize])
                     {
-                        let mut new_path = path.clone();
-                        new_path.push(new_c);
-
-                        boggle_solve_help(grid, new_trie, new_c, new_path);
+                        path.push(new_c);
+                        boggle_solve_help(grid, new_trie, new_c, path);
+                        path.pop();
                     }
                 }
 
