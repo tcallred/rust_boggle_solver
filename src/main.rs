@@ -17,19 +17,19 @@ impl Trie {
         }
     }
 
-    pub fn insert(&mut self, word: &str, prefix: String) {
+    pub fn insert(&mut self, word: &str, prefix: &str) {
         if word.len() > 0 {
             let ch = word.chars().nth(0).unwrap();
             let new_prefix = format!("{}{}", prefix, ch);
             if let Some(child) = self.children.get_mut(&ch) {
-                child.insert(&word[1..], new_prefix.clone());
+                child.insert(&word[1..], &new_prefix[..]);
             } else {
                 let mut child = Self {
                     prefix: new_prefix.clone(),
                     is_word: false,
                     children: HashMap::new(),
                 };
-                child.insert(&word[1..], new_prefix.clone());
+                child.insert(&word[1..], &new_prefix[..]);
                 self.children.insert(ch, child);
             }
         } else {
@@ -123,7 +123,7 @@ fn main() {
     let mut dict = Trie::new();
 
     for s in contents.split_whitespace() {
-        dict.insert(s, "".to_string())
+        dict.insert(s, "")
     }
 
     // println!("{:?}", dict);
